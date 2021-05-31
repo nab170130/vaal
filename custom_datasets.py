@@ -23,11 +23,11 @@ def cifar10_transformer():
        ])
 
 def mnist_transformer():
-    return torchvision.transforms.Compose([
-            torchvision.transforms.RandomCrop(28, padding=4), 
-            torchvision.transforms.RandomHorizontalFlip(), 
-            torchvision.transforms.ToTensor(), 
-            torchvision.transforms.Normalize((0.1307,), (0.3081,))
+    return transforms.Compose([
+            transforms.RandomCrop(28, padding=4), 
+            transforms.RandomHorizontalFlip(), 
+            transforms.ToTensor(), 
+            transforms.Normalize((0.1307,), (0.3081,))
         ])
 
 class CIFAR10(Dataset):
@@ -71,7 +71,7 @@ class CIFAR100(Dataset):
 
 class MNIST(Dataset):
     def __init__(self, path):
-        self.mnist = datasets.mnist(root=path,
+        self.mnist = datasets.MNIST(root=path,
                                         download=True,
                                         train=True,
                                         transform=mnist_transformer())
