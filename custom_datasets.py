@@ -22,6 +22,14 @@ def cifar10_transformer():
                                 std=[0.5, 0.5, 0.5]),
        ])
 
+def mnist_transformer():
+    return torchvision.transforms.Compose([
+            torchvision.transforms.RandomCrop(28, padding=4), 
+            torchvision.transforms.RandomHorizontalFlip(), 
+            torchvision.transforms.ToTensor(), 
+            torchvision.transforms.Normalize((0.1307,), (0.3081,))
+        ])
+
 class CIFAR10(Dataset):
     def __init__(self, path):
         self.cifar10 = datasets.CIFAR10(root=path,
@@ -61,6 +69,25 @@ class CIFAR100(Dataset):
     def __len__(self):
         return len(self.cifar100)
 
+class MNIST(Dataset):
+    def __init__(self, path):
+        self.mnist = datasets.mnist(root=path,
+                                        download=True,
+                                        train=True,
+                                        transform=mnist_transformer())
+
+    def __getitem__(self, index):
+        if isinstance(index, numpy.float64):
+            index = index.astype(numpy.int64)
+
+        data, target = self.mnist[index]
+
+        # Your transformations here (or set it in CIFAR10)
+
+        return data, target, index
+
+    def __len__(self):
+        return len(self.mnist)
 
 class ImageNet(Dataset):
     def __init__(self, path):

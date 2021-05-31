@@ -23,6 +23,12 @@ def cifar_transformer():
                                 std=[0.5, 0.5, 0.5]),
         ])
 
+def mnist_transformer():
+    return transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.1307,), (0.3081,))
+        ])
+
 def main(args):
     if args.dataset == 'cifar10':
         test_dataloader = data.DataLoader(
@@ -61,6 +67,19 @@ def main(args):
         args.budget = 64060
         args.initial_budget = 128120
         args.num_classes = 1000
+        
+    elif args.dataset == 'mnist':
+        test_dataloader = data.DataLoader(
+                datasets.MNIST(args.data_path, download=True, transform=mnist_transformer(), train=False),
+            batch_size=args.batch_size, drop_last=False)
+        
+        train_dataset = MNIST(args.data_path)
+        
+        args.num_val = 6000
+        args.num_images = 60000
+        args.budget = 10
+        args.initial_budget = 600
+        args.num_classes = 10
     else:
         raise NotImplementedError
 
@@ -81,7 +100,10 @@ def main(args):
     args.cuda = args.cuda and torch.cuda.is_available()
     solver = Solver(args, test_dataloader)
 
-    splits = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+    if args.dataset != 'mnist':
+        splits = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+    else:
+        splits = [0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04]
 
     current_indices = list(initial_indices)
 
