@@ -112,8 +112,12 @@ def main(args):
     for split in splits:
         # need to retrain all the models on the new images
         # re initialize and retrain the models
-        task_model = vgg.vgg16_bn(num_classes=args.num_classes)
-        vae = model.VAE(args.latent_dim)
+        if args.dataset == 'mnist':
+            task_model = mnist_net.MnistNet()
+            vae = model.VAE(args.latent_dim, nc=1)
+        else:
+            task_model = vgg.vgg16_bn(num_classes=args.num_classes)
+            vae = model.VAE(args.latent_dim)
         discriminator = model.Discriminator(args.latent_dim)
 
         unlabeled_indices = np.setdiff1d(list(all_indices), current_indices)
