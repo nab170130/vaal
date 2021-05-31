@@ -58,6 +58,7 @@ class Solver:
         
         best_acc = 0
         for iter_count in range(self.args.train_iterations):
+            print("EPOCH:", iter_count)
             if iter_count is not 0 and iter_count % lr_change == 0:
                 for param in optim_task_model.param_groups:
                     param['lr'] = param['lr'] / 10
@@ -94,8 +95,6 @@ class Solver:
                     lab_real_preds = lab_real_preds.cuda()
                     unlab_real_preds = unlab_real_preds.cuda()
 
-                print(labeled_preds.shape)
-                print(lab_real_preds.shape)
                 dsc_loss = self.bce_loss(labeled_preds, lab_real_preds) + \
                         self.bce_loss(unlabeled_preds, unlab_real_preds)
                 total_vae_loss = unsup_loss + transductive_loss + self.args.adversary_param * dsc_loss
@@ -119,11 +118,11 @@ class Solver:
                     _, _, mu, _ = vae(labeled_imgs)
                     _, _, unlab_mu, _ = vae(unlabeled_imgs)
                 
-                labeled_preds = discriminator(mu)
-                unlabeled_preds = discriminator(unlab_mu)
+                labeled_preds = discriminator(mu)[:,0]
+                unlabeled_preds = discriminator(unlab_mu)[:,0]
                 
-                lab_real_preds = torch.ones(labeled_imgs.size(0))[:,0]
-                unlab_fake_preds = torch.zeros(unlabeled_imgs.size(0))[:,0]
+                lab_real_preds = torch.ones(labeled_imgs.size(0))
+                unlab_fake_preds = torch.zeros(unlabeled_imgs.size(0))
 
                 if self.args.cuda:
                     lab_real_preds = lab_real_preds.cuda()
@@ -212,8 +211,6 @@ class Solver:
 
 
     def vae_loss(self, x, recon, mu, logvar, beta):
-        print(x.shape)
-        print(recon.shape)
         MSE = self.mse_loss(recon, x)
         KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         KLD = KLD * beta

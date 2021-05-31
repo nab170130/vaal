@@ -11,6 +11,7 @@ import os
 from custom_datasets import *
 import model
 import vgg
+import mnist_net
 from solver import Solver
 from utils import *
 import arguments
@@ -114,6 +115,7 @@ def main(args):
         # re initialize and retrain the models
         if args.dataset == 'mnist':
             task_model = mnist_net.MnistNet()
+            print(args.latent_dim)
             vae = model.VAE(args.latent_dim, nc=1)
         else:
             task_model = vgg.vgg16_bn(num_classes=args.num_classes)
@@ -148,4 +150,3 @@ def main(args):
 if __name__ == '__main__':
     args = arguments.get_args()
     main(args)
-
