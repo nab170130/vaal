@@ -98,7 +98,7 @@ def main(args):
     val_dataloader = data.DataLoader(train_dataset, sampler=val_sampler,
             batch_size=args.batch_size, drop_last=False)
             
-    args.cuda = args.cuda and torch.cuda.is_available()
+    args.cuda = True
     solver = Solver(args, test_dataloader)
 
     if args.dataset != 'mnist':
