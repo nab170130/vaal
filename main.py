@@ -140,7 +140,7 @@ def main(args):
                                                discriminator,
                                                unlabeled_dataloader)
         end_train = time.time()
-        train_time = start_train - end_train
+        train_time = end_train - start_train
         print("Train time:", train_time)
         train_times.append(train_time)
         
