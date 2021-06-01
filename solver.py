@@ -46,7 +46,6 @@ class Solver:
         optim_task_model = optim.SGD(task_model.parameters(), lr=0.01, weight_decay=5e-4, momentum=0.9)
         optim_discriminator = optim.Adam(discriminator.parameters(), lr=5e-4)
 
-
         vae.train()
         discriminator.train()
         task_model.train()
@@ -144,9 +143,13 @@ class Solver:
                         labeled_imgs = labeled_imgs.cuda()
                         unlabeled_imgs = unlabeled_imgs.cuda()
                         labels = labels.cuda()
-
-                
-
+            
+            if iter_count % 10 == 0:
+                acc = self.validate(task_model, querry_dataloader)
+                if acc > 0.99:
+                    best_model = copy.deepcopy(task_model)
+                    break
+            
             if iter_count % 100 == 0:
                 print('Current training iteration: {}'.format(iter_count))
                 print('Current task model loss: {:.4f}'.format(task_loss.item()))
