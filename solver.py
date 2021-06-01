@@ -146,7 +146,8 @@ class Solver:
             
             if iter_count % 10 == 0:
                 acc = self.validate(task_model, querry_dataloader)
-                if acc > 0.99:
+                print("Iter", iter_count, "train acc:", acc)
+                if acc > 99:
                     best_model = copy.deepcopy(task_model)
                     break
             
