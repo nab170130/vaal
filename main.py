@@ -16,6 +16,7 @@ from solver import Solver
 from utils import *
 import arguments
 
+import time
 
 def cifar_transformer():
     return transforms.Compose([
@@ -109,6 +110,9 @@ def main(args):
     current_indices = list(initial_indices)
 
     accuracies = []
+    train_times = []
+    sel_times = []
+    
     
     for split in splits:
         # need to retrain all the models on the new images
@@ -128,24 +132,35 @@ def main(args):
                 sampler=unlabeled_sampler, batch_size=args.batch_size, drop_last=False)
 
         # train the models on the current data
+        start_train = time.time()
         acc, vae, discriminator = solver.train(querry_dataloader,
                                                val_dataloader,
                                                task_model, 
                                                vae, 
                                                discriminator,
                                                unlabeled_dataloader)
-
-
+        end_train = time.time()
+        train_time = start_train - end_train
+        print("Train time:", train_time)
+        train_times.append(train_time)
+        
         print('Final accuracy with {} samples is: {:.2f}'.format(int(split), acc))
         accuracies.append(acc)
 
+        start_sampling = time.time()
         sampled_indices = solver.sample_for_labeling(vae, discriminator, unlabeled_dataloader)
+        end_sampling = time.time()
+        sampling_time = end_sampling - start_sampling
+        sel_times.append(sampling_time)
+        
         current_indices = list(current_indices) + list(sampled_indices)
         sampler = data.sampler.SubsetRandomSampler(current_indices)
         querry_dataloader = data.DataLoader(train_dataset, sampler=sampler, 
                 batch_size=args.batch_size, drop_last=True)
 
     print("FINAL ACCS:", accuracies)
+    print("FINAL TRAIN TIMES:", train_times)
+    print("FINAL SEL. TIMES", sel_times)
     torch.save(accuracies, os.path.join(args.out_path, args.log_name))
 
 if __name__ == '__main__':
