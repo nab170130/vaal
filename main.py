@@ -79,7 +79,7 @@ def main(args):
         args.num_val = 6000
         args.num_images = 60000
         args.budget = 10
-        args.initial_budget = 600
+        args.initial_budget = 50
         args.num_classes = 10
     else:
         raise NotImplementedError
@@ -104,7 +104,7 @@ def main(args):
     if args.dataset != 'mnist':
         splits = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
     else:
-        splits = [0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04]
+        splits = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150]
 
     current_indices = list(initial_indices)
 
@@ -136,7 +136,7 @@ def main(args):
                                                unlabeled_dataloader)
 
 
-        print('Final accuracy with {}% of data is: {:.2f}'.format(int(split*100), acc))
+        print('Final accuracy with {} samples is: {:.2f}'.format(int(split), acc))
         accuracies.append(acc)
 
         sampled_indices = solver.sample_for_labeling(vae, discriminator, unlabeled_dataloader)
@@ -145,6 +145,7 @@ def main(args):
         querry_dataloader = data.DataLoader(train_dataset, sampler=sampler, 
                 batch_size=args.batch_size, drop_last=True)
 
+    print("FINAL ACCS:", accuracies)
     torch.save(accuracies, os.path.join(args.out_path, args.log_name))
 
 if __name__ == '__main__':
